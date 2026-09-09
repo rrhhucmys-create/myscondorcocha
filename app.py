@@ -21,48 +21,42 @@ except Exception as e:
     print(f"Aviso al iniciar base de datos: {e}")
 
 def obtener_datos_emo(dni_usuario):
-    """Descarga el Excel de SharePoint y busca los datos EMO del DNI logueado."""
+    """Descarga el Excel de SharePoint y busca TODOS los exámenes del DNI."""
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
+        headers = {"User-Agent": "Mozilla/3.0"}
         resp = requests.get(SHAREPOINT_EMO_URL, headers=headers, timeout=15)
         
         if resp.status_code != 200:
             print(f"No se pudo descargar de SharePoint. Status: {resp.status_code}")
-            return None
+            return []
 
-        # Los encabezados están en la fila 5 (header=4 en base 0)
-        # Soporta tanto formato binario (.xlsb) como regular (.xlsx)
         try:
             df = pd.read_excel(io.BytesIO(resp.content), header=4)
         except Exception:
             df = pd.read_excel(io.BytesIO(resp.content), header=4, engine="pyxlsb")
 
-        # Limpieza de nombres de columnas
         df.columns = [str(c).strip().upper() for c in df.columns]
 
-        # Ubicar columnas de DNI, FECHA EMO, VENCIMIENTO y CLINICA
         col_dni = next((c for c in df.columns if "DNI" in c), None)
-        col_emo = next((c for c in df.columns if "EMO" in c), None)
+        col_emo = next((c for c in df.columns if "FECHA EM" in c or "EMO" in c), None)
         col_venc = next((c for c in df.columns if "VENCIMIENTO" in c), None)
         col_clinica = next((c for c in df.columns if "CLINIC" in c), None)
 
         if not (col_dni and col_emo and col_venc):
-            return None
+            return []
 
-        # Limpiar DNI del DataFrame
+        # Normalizar DNI
         df[col_dni] = df[col_dni].astype(str).str.strip().str.replace(r"\.0$", "", regex=True).str.zfill(8)
 
-        # Filtrar registros del usuario logueado
-        registros_usuario = df[df[col_dni] == str(dni_usuario).zfill(8)].copy()
+        # Filtrar todos los registros de la persona
+        registros = df[df[col_dni] == str(dni_usuario).zfill(8)].copy()
 
-        if registros_usuario.empty:
-            return None
+        if registros.empty:
+            return []
 
-        # Convertir a formato fecha para ordenar por la más reciente
-        registros_usuario["EMO_DT"] = pd.to_datetime(registros_usuario[col_emo], errors="coerce", dayfirst=True)
-        registros_usuario = registros_usuario.sort_values(by="EMO_DT", ascending=False)
-
-        fila = registros_usuario.iloc[0]
+        # Ordenar por fecha EMO de más reciente a más antiguo
+        registros["EMO_DT"] = pd.to_datetime(registros[col_emo], errors="coerce", dayfirst=True)
+        registros = registros.sort_values(by="EMO_DT", ascending=False)
 
         def formatear_fecha(valor):
             if pd.isna(valor) or str(valor).strip() == "":
@@ -70,15 +64,19 @@ def obtener_datos_emo(dni_usuario):
             dt = pd.to_datetime(valor, errors="coerce", dayfirst=True)
             return dt.strftime("%d/%m/%Y") if pd.notna(dt) else str(valor).split()[0]
 
-        return {
-            "fecha_emo": formatear_fecha(fila[col_emo]),
-            "fecha_vencimiento": formatear_fecha(fila[col_venc]),
-            "clinica": str(fila.get(col_clinica, "No especificada")).strip() if col_clinica else "No especificada"
-        }
+        examenes = []
+        for _, fila in registros.iterrows():
+            examenes.append({
+                "fecha_emo": formatear_fecha(fila[col_emo]),
+                "fecha_vencimiento": formatear_fecha(fila[col_venc]),
+                "clinica": str(fila.get(col_clinica, "MEPSO")).strip() if col_clinica and pd.notna(fila[col_clinica]) else "No especificada"
+            })
+
+        return examenes  # Retorna lista con 1, 2 o más exámenes
 
     except Exception as e:
         print(f"Error consultando SharePoint EMO: {e}")
-        return None
+        return []
 
 @app.route("/")
 def home():
