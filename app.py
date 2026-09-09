@@ -1,6 +1,11 @@
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, request, redirect, url_for, session
 
 app = Flask(__name__)
+app.secret_key = "mys_clave_secreta_super_segura_2026"
+
+# Credenciales de prueba
+USUARIO_CORRECTO = "admin"
+PASSWORD_CORRECTO = "123456"
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -21,6 +26,7 @@ HTML_TEMPLATE = """
             --card-bg: #ffffff;
             --text-dark: #1e293b;
             --text-muted: #64748b;
+            --danger: #e63946;
         }
 
         * {
@@ -40,11 +46,14 @@ HTML_TEMPLATE = """
         header {
             background: #ffffff;
             border-bottom: 2px solid #e2e8f0;
-            padding: 1rem 2rem;
+            padding: 0.85rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .brand-container {
@@ -53,7 +62,6 @@ HTML_TEMPLATE = """
             gap: 12px;
         }
 
-        /* Isotipo visual M&S */
         .logo-badge {
             width: 44px;
             height: 44px;
@@ -88,11 +96,61 @@ HTML_TEMPLATE = """
             text-transform: uppercase;
         }
 
-        /* Sección Principal (Hero) */
+        /* Botón de Login en el Header */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-login {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-login:hover {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-logout {
+            background-color: #fee2e2;
+            color: var(--danger);
+            border: 1px solid #fca5a5;
+            padding: 0.45rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background-color: #fecaca;
+        }
+
+        .user-tag {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Banner Principal */
         .hero {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
             color: #ffffff;
-            padding: 4.5rem 1.5rem;
+            padding: 4rem 1.5rem;
             text-align: center;
             position: relative;
         }
@@ -103,22 +161,21 @@ HTML_TEMPLATE = """
             bottom: 0;
             left: 0;
             right: 0;
-            height: 12px;
+            height: 10px;
             background: linear-gradient(90deg, var(--accent), #57cc99);
         }
 
         .hero h2 {
             font-family: 'Montserrat', sans-serif;
-            font-size: 2.2rem;
+            font-size: 2.1rem;
             font-weight: 800;
-            margin-bottom: 1rem;
-            letter-spacing: -0.5px;
+            margin-bottom: 0.8rem;
         }
 
         .hero p {
             max-width: 680px;
-            margin: 0 auto 1.8rem auto;
-            font-size: 1.05rem;
+            margin: 0 auto 1.5rem auto;
+            font-size: 1rem;
             opacity: 0.92;
             font-weight: 300;
         }
@@ -128,7 +185,6 @@ HTML_TEMPLATE = """
             align-items: center;
             gap: 8px;
             background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(8px);
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -141,11 +197,23 @@ HTML_TEMPLATE = """
             height: 8px;
             background-color: #2ecc71;
             border-radius: 50%;
-            display: inline-block;
             box-shadow: 0 0 8px #2ecc71;
         }
 
-        /* Módulos de Acceso / Tarjetas */
+        /* Alerta de Error */
+        .alert-error {
+            max-width: 500px;
+            margin: 1.5rem auto -1rem auto;
+            background-color: #fee2e2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            font-size: 0.88rem;
+            text-align: center;
+        }
+
+        /* Tarjetas */
         .container {
             max-width: 1050px;
             margin: -2.5rem auto 3rem auto;
@@ -162,7 +230,7 @@ HTML_TEMPLATE = """
             background: var(--card-bg);
             border-radius: 12px;
             padding: 2rem 1.7rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
             border: 1px solid #e2e8f0;
             border-top: 4px solid var(--primary);
             transition: all 0.25s ease;
@@ -170,36 +238,34 @@ HTML_TEMPLATE = """
 
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 16px 30px -5px rgba(19, 78, 94, 0.15);
             border-top-color: var(--accent);
         }
 
         .card-icon {
-            width: 46px;
-            height: 46px;
+            width: 44px;
+            height: 44px;
             background-color: #e0f2f1;
             color: var(--primary);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             margin-bottom: 1.2rem;
         }
 
         .card h3 {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             color: var(--primary-dark);
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.5rem;
             font-weight: 700;
         }
 
         .card p {
             color: var(--text-muted);
-            font-size: 0.92rem;
-            line-height: 1.5;
-            margin-bottom: 1.4rem;
+            font-size: 0.9rem;
+            margin-bottom: 1.3rem;
         }
 
         .btn-action {
@@ -207,7 +273,7 @@ HTML_TEMPLATE = """
             background-color: var(--primary);
             color: #ffffff;
             text-decoration: none;
-            padding: 0.65rem 1.25rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 6px;
             font-weight: 600;
             font-size: 0.85rem;
@@ -218,7 +284,97 @@ HTML_TEMPLATE = """
             background-color: var(--primary-dark);
         }
 
-        /* Pie de página */
+        /* Modal de Login */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 39, 48, 0.65);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 2.2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .modal-header h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            color: var(--primary-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-dark);
+        }
+
         footer {
             text-align: center;
             padding: 2rem 1rem;
@@ -231,7 +387,7 @@ HTML_TEMPLATE = """
 </head>
 <body>
 
-    <!-- Header Corporativo -->
+    <!-- Header -->
     <header>
         <div class="brand-container">
             <div class="logo-badge">M&amp;S</div>
@@ -240,7 +396,25 @@ HTML_TEMPLATE = """
                 <span>Portal Operativo &amp; Gestión</span>
             </div>
         </div>
+
+        <!-- Botones de Usuario / Login -->
+        <div class="header-actions">
+            {% if session.get('user') %}
+                <span class="user-tag">👤 <strong>{{ session.get('user') }}</strong></span>
+                <a href="{{ url_for('logout') }}" class="btn-logout">Cerrar Sesión</a>
+            {% else %}
+                <button class="btn-login" onclick="abrirModal()">
+                    🔒 Iniciar Sesión
+                </button>
+            {% endif %}
+        </div>
     </header>
+
+    {% if error %}
+    <div class="alert-error">
+        ⚠️ {{ error }}
+    </div>
+    {% endif %}
 
     <!-- Banner Principal -->
     <section class="hero">
@@ -251,7 +425,7 @@ HTML_TEMPLATE = """
         <p>Plataforma centralizada para la gestión, registro de tareos, control de horas y automatización de procesos operativos.</p>
     </section>
 
-    <!-- Accesos / Secciones del Sistema -->
+    <!-- Módulos Principales -->
     <main class="container">
         <div class="cards-grid">
             <div class="card">
@@ -277,10 +451,49 @@ HTML_TEMPLATE = """
         </div>
     </main>
 
+    <!-- Ventana Modal de Inicio de Sesión -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            <div class="modal-header">
+                <div class="logo-badge" style="margin: 0 auto 0.8rem auto;">M&amp;S</div>
+                <h3>Acceso al Sistema</h3>
+            </div>
+            
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Ingrese su usuario" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required>
+                </div>
+                <button type="submit" class="btn-submit">Ingresar</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer>
         <p>&copy; 2026 Mantenimiento y Supervisión S.A. &bull; Todos los derechos reservados</p>
     </footer>
+
+    <script>
+        function abrirModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+        function cerrarModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+        // Cerrar al hacer clic fuera del recuadro
+        window.onclick = function(event) {
+            var modal = document.getElementById('loginModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 
 </body>
 </html>
@@ -288,7 +501,24 @@ HTML_TEMPLATE = """
 
 @app.route("/")
 def home():
-    return render_template_string(HTML_TEMPLATE)
+    error = request.args.get("error")
+    return render_template_string(HTML_TEMPLATE, error=error)
+
+@app.route("/login", methods=["POST"])
+def login():
+    usuario = request.form.get("username", "").strip()
+    password = request.form.get("password", "").strip()
+    
+    if usuario == USUARIO_CORRECTO and password == PASSWORD_CORRECTO:
+        session["user"] = usuario
+        return redirect(url_for("home"))
+    else:
+        return redirect(url_for("home", error="Usuario o contraseña incorrectos"))
+
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
