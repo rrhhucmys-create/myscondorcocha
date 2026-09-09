@@ -178,8 +178,9 @@ def obtener_capacitaciones(dni_usuario):
                 print(f"Error procesando hoja {sheet}: {e_hoja}")
                 continue
 
-        # Ordenar para que los cursos vigentes con fecha aparezcan primero
-        capacitaciones.sort(key=lambda x: (x["estado"] != "VIGENTE / APROBADO", x["curso"]))
+        # Orden de prioridad: 1° Vigentes, 2° Pendientes, 3° No Aplica
+        orden_estados = {"VIGENTE / APROBADO": 0, "PENDIENTE": 1, "NO APLICA": 2}
+        capacitaciones.sort(key=lambda x: (orden_estados.get(x["estado"], 3), x["curso"]))
         return capacitaciones
 
     except Exception as e:
