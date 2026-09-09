@@ -12,11 +12,11 @@ def get_connection():
     return conn
 
 def sincronizar_usuarios_desde_xlsb():
-    """Lee el archivo XLSB y crea la base de datos SQLite"""
+    """Lee el archivo .xlsb disponible y reconstruye la base de datos SQLite."""
     conn = get_connection()
     cursor = conn.cursor()
     
-    # Crear tabla si no existe
+    # 1. Crear tabla si no existe
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             dni TEXT PRIMARY KEY,
@@ -28,57 +28,73 @@ def sincronizar_usuarios_desde_xlsb():
     """)
     conn.commit()
 
-    # Buscar cualquier archivo .xlsb disponible en la carpeta
+    # 2. Buscar cualquier archivo .xlsb disponible en la raíz del proyecto
     archivos = glob.glob("*.xlsb")
     if not archivos:
-        print("No se encontró ningún archivo .xlsb para sincronizar.")
+        print("Aviso: No se encontró ningún archivo .xlsb para sincronizar.")
         conn.close()
         return
 
+    # Usar el primer archivo .xlsb encontrado
     archivo_xlsb = archivos[0]
-    print(f"Leyendo datos desde: {archivo_xlsb}")
+    print(f"Iniciando sincronización desde: {archivo_xlsb}")
 
     try:
-        # Leer hoja LISTA usando el motor pyxlsb
+        # 3. Leer la hoja LISTA con el motor binario pyxlsb
         df = pd.read_excel(archivo_xlsb, sheet_name="LISTA", engine="pyxlsb")
         
-        # Limpiar y normalizar encabezados
+        # Normalizar encabezados eliminando espacios y pasando a mayúsculas
         df.columns = [str(c).strip().upper() for c in df.columns]
 
-        # Validar columnas
-        if "DNI" in df.columns and "NOMBRE" in df.columns:
-            df = df.dropna(subset=["DNI", "NOMBRE"])
+        if "DNI" not in df.columns or "NOMBRE" not in df.columns:
+            print("Error: El archivo no contiene las columnas 'DNI' y 'NOMBRE'.")
+            conn.close()
+            return
 
-            for _, row in df.iterrows():
-                dni_raw = str(row["DNI"]).strip()
-                if dni_raw.endswith(".0"):
-                    dni = dni_raw[:-2].zfill(8)
-                else:
-                    dni = dni_raw.zfill(8)
+        # Descartar filas sin DNI o sin NOMBRE
+        df = df.dropna(subset=["DNI", "NOMBRE"])
 
-                nombre_completo = str(row["NOMBRE"]).strip()
-                if not dni or not nombre_completo or dni == "00000000":
-                    continue
+        # 4. Limpiar datos anteriores para reflejar exactamente el nuevo Excel (altas y bajas)
+        cursor.execute("DELETE FROM usuarios")
+        conn.commit()
 
-                # Extraer primera palabra del nombre
-                primera_palabra = nombre_completo.split()[0].upper()
-                
-                # Contraseña: PRIMERAPALABRA + DNI
-                password_plana = f"{primera_palabra}{dni}"
-                password_hash = generate_password_hash(password_plana)
+        registros = 0
+        for _, row in df.iterrows():
+            dni_raw = str(row["DNI"]).strip()
+            
+            # Limpiar si viene como decimal flotante (ej. 72110830.0)
+            if dni_raw.endswith(".0"):
+                dni = dni_raw[:-2].zfill(8)
+            else:
+                dni = dni_raw.zfill(8)
 
-                cargo = str(row.get("CARGO", "")).strip() if pd.notna(row.get("CARGO")) else ""
-                area = str(row.get("LINEA", "")).strip() if pd.notna(row.get("LINEA")) else ""
+            nombre_completo = str(row["NOMBRE"]).strip()
+            
+            # Validar que no sea una fila vacía o de relleno
+            if not dni or not nombre_completo or dni == "00000000":
+                continue
 
-                cursor.execute("""
-                    INSERT OR REPLACE INTO usuarios (dni, password_hash, nombre_completo, cargo, area)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (dni, password_hash, nombre_completo, cargo, area))
+            # Obtener primera palabra en mayúsculas para la contraseña
+            primera_palabra = nombre_completo.split()[0].upper()
+            
+            # Contraseña requerida: PRIMERAPALABRA + DNI (ej. JORGE72110830)
+            password_plana = f"{primera_palabra}{dni}"
+            password_hash = generate_password_hash(password_plana)
 
-            conn.commit()
-            print("Sincronización completada con éxito.")
+            cargo = str(row.get("CARGO", "")).strip() if pd.notna(row.get("CARGO")) else ""
+            area = str(row.get("LINEA", "")).strip() if pd.notna(row.get("LINEA")) else ""
+
+            # Insertar registro seguro
+            cursor.execute("""
+                INSERT OR REPLACE INTO usuarios (dni, password_hash, nombre_completo, cargo, area)
+                VALUES (?, ?, ?, ?, ?)
+            """, (dni, password_hash, nombre_completo, cargo, area))
+            registros += 1
+
+        conn.commit()
+        print(f"¡Sincronización finalizada! {registros} colaboradores actualizados.")
     except Exception as e:
-        print(f"Error procesando XLSB: {e}")
+        print(f"Error durante la lectura del archivo .xlsb: {e}")
     finally:
         conn.close()
 
