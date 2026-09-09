@@ -17,14 +17,13 @@ SHAREPOINT_EMO_URL = "https://myscia-my.sharepoint.com/:x:/g/personal/medico_mys
 # 2. Enlace de SharePoint para CAPACITACIONES
 SHAREPOINT_CAP_URL = "https://myscia-my.sharepoint.com/:x:/g/personal/rrhh_condorcocha_myssa_com_pe/IQDwhxjC2UYpQbWUQKSwOIJlAasZOHewvkaHm6k8kHCEs7U?e=CNfQD7&download=1"
 
-# Sincronización de credenciales de usuarios al arrancar
 try:
     sincronizar_usuarios_desde_xlsb()
 except Exception as e:
     print(f"Aviso al iniciar base de datos: {e}")
 
 # ========================================================
-# FUNCIÓN 1: OBTENER DATOS DE EMO (MÉDICO)
+# FUNCIÓN 1: CONSULTA DE EMO
 # ========================================================
 def obtener_datos_emo(dni_usuario):
     try:
@@ -39,7 +38,6 @@ def obtener_datos_emo(dni_usuario):
             df = pd.read_excel(io.BytesIO(resp.content), header=4, engine="pyxlsb")
 
         df.columns = [str(c).strip().upper() for c in df.columns]
-
         col_dni = next((c for c in df.columns if "DNI" in c), None)
         col_emo = next((c for c in df.columns if "FECHA EM" in c or "EMO" in c), None)
         col_venc = next((c for c in df.columns if "VENCIMIENTO" in c), None)
@@ -54,9 +52,6 @@ def obtener_datos_emo(dni_usuario):
         if registros.empty:
             return []
 
-        registros["EMO_DT"] = pd.to_datetime(registros[col_emo], errors="coerce", dayfirst=True)
-        registros = registros.sort_values(by="EMO_DT", ascending=False)
-
         def formatear_fecha(valor):
             if pd.isna(valor) or str(valor).strip() in ["", "-", "0"]:
                 return "No registra"
@@ -68,7 +63,7 @@ def obtener_datos_emo(dni_usuario):
             examenes.append({
                 "fecha_emo": formatear_fecha(fila[col_emo]),
                 "fecha_vencimiento": formatear_fecha(fila[col_venc]),
-                "clinica": str(fila.get(col_clinica, "MEPSO")).strip() if col_clinica and pd.notna(fila[col_clinica]) else "No especificada"
+                "clinica": str(fila.get(col_clinica, "MEPSO")).strip() if col_clinica and pd.notna(fila[col_clinica]) else "MEPSO"
             })
         return examenes
     except Exception as e:
@@ -76,10 +71,9 @@ def obtener_datos_emo(dni_usuario):
         return []
 
 # ========================================================
-# FUNCIÓN 2: OBTENER CAPACITACIONES DESDE SHAREPOINT
+# FUNCIÓN 2: CONSULTA DE CAPACITACIONES REALES
 # ========================================================
 def obtener_capacitaciones(dni_usuario):
-    """Descarga el Excel de capacitaciones, busca en las 3 hojas y extrae los cursos desde INDUCCION DE SEGURIDAD ISEM."""
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
         resp = requests.get(SHAREPOINT_CAP_URL, headers=headers, timeout=15)
@@ -87,93 +81,97 @@ def obtener_capacitaciones(dni_usuario):
             print(f"Error descargando capacitaciones: {resp.status_code}")
             return []
 
-        # Abrir el libro completo para leer las 3 hojas
+        # Abrir archivo para leer todas las hojas
         try:
             excel_obj = pd.ExcelFile(io.BytesIO(resp.content), engine="openpyxl")
         except Exception:
             excel_obj = pd.ExcelFile(io.BytesIO(resp.content), engine="pyxlsb")
 
-        capacitaciones_registradas = []
+        capacitaciones = []
         dni_buscado = str(dni_usuario).strip().zfill(8)
 
-        # Recorrer cada hoja (Tabla1, Tabla2, Tabla3 o las que existan)
-        for nombre_hoja in excel_obj.sheet_names:
+        for sheet in excel_obj.sheet_names:
             try:
-                # Fila 5 es header=4 en pandas
-                df = pd.read_excel(excel_obj, sheet_name=nombre_hoja, header=4)
-                
-                # Eliminar columnas totalmente vacías
+                # Fila 5 de Excel corresponde a header=4 en pandas
+                df = pd.read_excel(excel_obj, sheet_name=sheet, header=4)
                 df = df.dropna(how="all", axis=1)
+                df.columns = [" ".join(str(c).replace("\n", " ").split()).strip() for c in df.columns]
 
-                # Limpieza de nombres de encabezados
-                columnas_limpias = [" ".join(str(c).replace("\n", " ").split()).strip() for c in df.columns]
-                df.columns = columnas_limpias
-
-                # Buscar columna DNI
+                # Ubicar columna DNI
                 col_dni = next((c for c in df.columns if "DNI" in c.upper()), None)
                 if not col_dni:
                     continue
 
-                # Normalizar columna DNI
                 df[col_dni] = df[col_dni].astype(str).str.strip().str.replace(r"\.0$", "", regex=True).str.zfill(8)
-
-                # Buscar fila del usuario
-                filas_usuario = df[df[col_dni] == dni_buscado]
-                if filas_usuario.empty:
+                filas_persona = df[df[col_dni] == dni_buscado]
+                if filas_persona.empty:
                     continue
 
-                # Identificar a partir de qué columna empiezan las capacitaciones
-                # Regla: Desde "INDUCCION DE SEGURIDAD ISEM" en adelante
-                idx_inicio_cursos = None
-                for idx, c in enumerate(df.columns):
-                    c_up = c.upper()
-                    if "INDUCCION" in c_up and "ISEM" in c_up:
-                        idx_inicio_cursos = idx
-                        break
-                    elif "INDUCCION" in c_up:
-                        idx_inicio_cursos = idx
+                # Ubicar desde INDUCCION DE SEGURIDAD ISEM en adelante
+                idx_inicio = None
+                for idx, col in enumerate(df.columns):
+                    col_u = col.upper()
+                    if "INDUCCION" in col_u and "ISEM" in col_u:
+                        idx_inicio = idx
                         break
 
-                # Si no encuentra el texto exacto, tomar las que siguen después de CARGO o columna 5
-                if idx_inicio_cursos is None:
-                    idx_inicio_cursos = 5
+                if idx_inicio is None:
+                    # Alternativa por si varía el nombre exacto
+                    for idx, col in enumerate(df.columns):
+                        if "INDUCCION" in col.upper():
+                            idx_inicio = idx
+                            break
 
-                columnas_cursos = list(df.columns)[idx_inicio_cursos:]
+                if idx_inicio is None:
+                    idx_inicio = 6
 
-                # Extraer los cursos de la fila encontrada
-                for _, fila in filas_usuario.iterrows():
+                columnas_cursos = list(df.columns)[idx_inicio:]
+
+                for _, fila in filas_persona.iterrows():
                     for curso in columnas_cursos:
-                        # Omitir nombres irrelevantes o vacíos
                         if "UNNAMED" in curso.upper():
                             continue
 
-                        valor_celda = fila.get(curso)
+                        valor = fila.get(curso)
+                        valor_str = str(valor).strip().upper() if pd.notna(valor) else ""
 
-                        # Si la celda tiene un valor registrado (no nulo, no guion, no cero)
-                        if pd.notna(valor_celda):
-                            val_str = str(valor_celda).strip()
-                            if val_str not in ["", "-", "0", "0.0", "NO", "NONE", "NAN"]:
-                                # Formatear si es fecha
-                                dt = pd.to_datetime(valor_celda, errors="coerce", dayfirst=True)
-                                fecha_formateada = dt.strftime("%d/%m/%Y") if pd.notna(dt) else val_str
+                        if valor_str in ["", "-", "NAN", "NONE"]:
+                            continue
 
-                                capacitaciones_registradas.append({
-                                    "curso": curso,
-                                    "fecha": fecha_formateada,
-                                    "origen": nombre_hoja
-                                })
-            except Exception as err_hoja:
-                print(f"Error procesando hoja {nombre_hoja}: {err_hoja}")
+                        # Clasificación de Estado
+                        if "NA" in valor_str or "N/A" in valor_str:
+                            capacitaciones.append({
+                                "curso": curso,
+                                "fecha": "No Aplica",
+                                "estado": "NO APLICA",
+                                "clase": "tag-noaplica",
+                                "origen": sheet
+                            })
+                        else:
+                            # Es una fecha válida
+                            dt = pd.to_datetime(valor, errors="coerce", dayfirst=True)
+                            fecha_fmt = dt.strftime("%d/%m/%Y") if pd.notna(dt) else str(valor).split()[0]
+                            capacitaciones.append({
+                                "curso": curso,
+                                "fecha": fecha_fmt,
+                                "estado": "VIGENTE / APROBADO",
+                                "clase": "tag-vigente",
+                                "origen": sheet
+                            })
+            except Exception as e_hoja:
+                print(f"Error procesando hoja {sheet}: {e_hoja}")
                 continue
 
-        return capacitaciones_registradas
+        # Ordenar para que los cursos vigentes con fecha aparezcan primero
+        capacitaciones.sort(key=lambda x: (x["estado"] != "VIGENTE / APROBADO", x["curso"]))
+        return capacitaciones
 
     except Exception as e:
         print(f"Error general en capacitaciones: {e}")
         return []
 
 # ========================================================
-# RUTAS FLASK
+# RUTAS DE FLASK
 # ========================================================
 @app.route("/")
 def home():
@@ -181,7 +179,6 @@ def home():
     datos_emo = []
     datos_cap = []
 
-    # Si hay sesión iniciada, buscar sus datos en ambos SharePoints
     if session.get("user_dni"):
         dni = session.get("user_dni")
         datos_emo = obtener_datos_emo(dni)
