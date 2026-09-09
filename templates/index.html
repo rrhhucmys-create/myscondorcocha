@@ -16,14 +16,11 @@
             --text-dark: #1e293b;
             --text-muted: #64748b;
             --danger: #e63946;
-            --success: #10b981;
-            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
 
-        /* Barra de navegación superior */
         header {
             background: #ffffff;
             border-bottom: 2px solid #e2e8f0;
@@ -56,7 +53,7 @@
             background-color: transparent; color: var(--primary);
             border: 1.5px solid var(--primary); padding: 0.55rem 1.2rem;
             border-radius: 6px; font-size: 0.85rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s ease;
+            cursor: pointer;
         }
         .btn-login:hover { background-color: var(--primary); color: #ffffff; }
 
@@ -66,40 +63,34 @@
             border-radius: 6px; font-size: 0.82rem; font-weight: 600;
             text-decoration: none;
         }
-        .btn-logout:hover { background-color: #fecaca; }
-        .user-tag { font-size: 0.9rem; color: var(--primary-dark); }
 
-        /* Banner Hero */
         .hero {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-            color: #ffffff; padding: 3rem 1.5rem 2.5rem 1.5rem; text-align: center; position: relative;
+            color: #ffffff; padding: 2.8rem 1.5rem 2.2rem 1.5rem; text-align: center; position: relative;
         }
         .hero::after {
             content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-            height: 10px; background: linear-gradient(90deg, var(--accent), #57cc99);
+            height: 8px; background: linear-gradient(90deg, var(--accent), #57cc99);
         }
-        .hero h2 { font-family: 'Montserrat', sans-serif; font-size: 1.9rem; font-weight: 800; margin-bottom: 0.5rem; }
 
         .user-welcome-card {
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.25);
             max-width: 650px;
-            margin: 0.8rem auto 0 auto;
+            margin: 0.5rem auto 0 auto;
             padding: 1.1rem 1.4rem;
             border-radius: 10px;
         }
 
-        /* BARRA DE MENÚ / TABS */
+        /* TABS */
         .nav-tabs-wrapper {
             background-color: #ffffff;
             border-bottom: 2px solid #e2e8f0;
             position: sticky;
             top: 65px;
             z-index: 90;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
-
         .nav-tabs {
             max-width: 1100px;
             margin: 0 auto;
@@ -107,64 +98,28 @@
             gap: 8px;
             padding: 0 1rem;
             overflow-x: auto;
-            white-space: nowrap;
         }
-
         .tab-btn {
-            background: none;
-            border: none;
-            padding: 1rem 1.4rem;
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
+            background: none; border: none; padding: 1rem 1.4rem;
+            font-size: 0.92rem; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; border-bottom: 3px solid transparent;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
+        .tab-btn:hover { color: var(--primary); background-color: #f8fafc; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
 
-        .tab-btn:hover {
-            color: var(--primary);
-            background-color: #f8fafc;
-        }
+        .container { max-width: 1100px; margin: 2rem auto 4rem auto; padding: 0 1.2rem; }
+        .tab-content { display: none; animation: fadeIn 0.25s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-            font-weight: 700;
-        }
-
-        /* Contenido de cada sección */
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto 4rem auto;
-            padding: 0 1.2rem;
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.25s ease-in-out;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Tarjetas de Módulos (Tab 1) */
+        /* CARDS */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.5rem; }
         .card {
             background: var(--card-bg); border-radius: 12px; padding: 2rem 1.7rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06); border: 1px solid #e2e8f0;
-            border-top: 4px solid var(--primary); transition: all 0.25s ease;
+            border-top: 4px solid var(--primary);
         }
-        .card:hover { transform: translateY(-4px); border-top-color: var(--accent); }
         .card-icon {
             width: 44px; height: 44px; background-color: #e0f2f1; color: var(--primary);
             border-radius: 8px; display: flex; align-items: center; justify-content: center;
@@ -178,70 +133,26 @@
             cursor: pointer; border: none;
         }
 
-        /* Estilos de Tablas y Paneles de Información */
+        /* PANELES Y TABLAS */
         .info-panel {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 1.8rem;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            background: #ffffff; border-radius: 12px; padding: 1.8rem;
+            border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
-
         .panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 1rem;
-            margin-bottom: 1.2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.2rem;
         }
+        .panel-header h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; color: var(--primary-dark); }
+        .table-responsive { overflow-x: auto; }
+        table.custom-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; }
+        table.custom-table th { background-color: #f8fafc; color: var(--primary-dark); font-weight: 700; padding: 12px 14px; border-bottom: 2px solid #e2e8f0; }
+        table.custom-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
 
-        .panel-header h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table.custom-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            text-align: left;
-        }
-
-        table.custom-table th {
-            background-color: #f8fafc;
-            color: var(--primary-dark);
-            font-weight: 700;
-            padding: 12px 14px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        table.custom-table td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .badge-status-tag {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.76rem;
-            font-weight: 700;
-            display: inline-block;
-            text-transform: uppercase;
-        }
+        .badge-status-tag { padding: 4px 10px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; display: inline-block; }
         .tag-vigente { background-color: #d1fae5; color: #065f46; }
-        .tag-por-vencer { background-color: #fef3c7; color: #92400e; }
-        .tag-vencido { background-color: #fee2e2; color: #991b1b; }
+        .tag-noaplica { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
 
-        /* Modal */
+        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(10, 39, 48, 0.65); backdrop-filter: blur(4px);
@@ -252,25 +163,16 @@
             padding: 2.2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); position: relative;
         }
         .modal-close { position: absolute; top: 1rem; right: 1.2rem; font-size: 1.4rem; color: var(--text-muted); cursor: pointer; border: none; background: none; }
-        .modal-header { text-align: center; margin-bottom: 1.8rem; }
-        .modal-header h3 { font-family: 'Montserrat', sans-serif; font-size: 1.35rem; color: var(--primary-dark); }
         .form-group { margin-bottom: 1.2rem; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
-        .form-control {
-            width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid #cbd5e1;
-            border-radius: 6px; font-size: 0.9rem; outline: none;
-        }
-        .btn-submit {
-            width: 100%; background-color: var(--primary); color: #ffffff; border: none;
-            padding: 0.75rem; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 0.5rem;
-        }
+        .form-control { width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+        .btn-submit { width: 100%; background-color: var(--primary); color: #ffffff; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 700; cursor: pointer; }
 
         footer { text-align: center; padding: 2rem 1rem; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid #e2e8f0; background-color: #ffffff; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <header>
         <div class="brand-container">
             <div class="logo-badge">M&amp;S</div>
@@ -282,7 +184,7 @@
 
         <div class="header-actions">
             {% if session.get('user_dni') %}
-                <span class="user-tag">👤 <strong>{{ session.get('user_dni') }}</strong></span>
+                <span style="font-size: 0.9rem; color: var(--primary-dark);">👤 <strong>{{ session.get('user_dni') }}</strong></span>
                 <a href="{{ url_for('logout') }}" class="btn-logout">Cerrar Sesión</a>
             {% else %}
                 <button class="btn-login" onclick="abrirModal()">🔒 Iniciar Sesión</button>
@@ -296,7 +198,6 @@
     </div>
     {% endif %}
 
-    <!-- Banner Principal -->
     <section class="hero">
         {% if session.get('nombre_completo') %}
             <div class="user-welcome-card">
@@ -305,33 +206,24 @@
                 <p style="margin: 0; font-size: 0.88rem; opacity: 0.92;">Cargo: <strong>{{ session.get('cargo') }}</strong> &bull; DNI: {{ session.get('user_dni') }}</p>
             </div>
         {% else %}
-            <h2>Control Operativo &amp; Supervisión</h2>
+            <h2 style="font-family: 'Montserrat', sans-serif; font-size: 1.9rem; font-weight: 800;">Control Operativo &amp; Supervisión</h2>
             <p style="font-size: 0.95rem; opacity: 0.9;">Plataforma centralizada para la gestión, registro de tareos, control de horas y automatización.</p>
         {% endif %}
     </section>
 
-    <!-- BARRA DE MENÚ DE NAVEGACIÓN -->
+    <!-- NAVEGACIÓN -->
     <nav class="nav-tabs-wrapper">
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="cambiarPestana(event, 'tab-inicio')">
-                🏠 Inicio
-            </button>
-            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-emo')">
-                🩺 Vigilancia Médica (EMO)
-            </button>
-            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-capacitaciones')">
-                🎓 Capacitaciones &amp; Cursos
-            </button>
-            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-documentos')">
-                📂 Mis Documentos
-            </button>
+            <button class="tab-btn active" onclick="cambiarPestana(event, 'tab-inicio')">🏠 Inicio</button>
+            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-emo')">🩺 Vigilancia Médica (EMO)</button>
+            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-capacitaciones')">🎓 Capacitaciones &amp; Cursos</button>
+            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-documentos')">📂 Mis Documentos</button>
         </div>
     </nav>
 
-    <!-- CONTENEDOR PRINCIPAL CON PESTAÑAS -->
     <main class="container">
 
-        <!-- 1. PESTAÑA: INICIO -->
+        <!-- TAB 1: INICIO -->
         <div id="tab-inicio" class="tab-content active">
             <div class="cards-grid">
                 <div class="card">
@@ -344,7 +236,7 @@
                 <div class="card">
                     <div class="card-icon">🎓</div>
                     <h3>Mis Capacitaciones</h3>
-                    <p>Revisa tu récord de inducciones de seguridad, cursos normativos y capacitaciones vigentes.</p>
+                    <p>Revisa tu récord de inducciones de seguridad, cursos normativos y autorizaciones vigentes.</p>
                     <button class="btn-action" onclick="activarPestanaPorId('tab-capacitaciones')">Ver Capacitaciones</button>
                 </div>
 
@@ -357,7 +249,7 @@
             </div>
         </div>
 
-        <!-- 2. PESTAÑA: VIGILANCIA MÉDICA (EMO) -->
+        <!-- TAB 2: EMO -->
         <div id="tab-emo" class="tab-content">
             <div class="info-panel">
                 <div class="panel-header">
@@ -377,7 +269,6 @@
                                         <th>FECHA EMO</th>
                                         <th>FECHA VENCIMIENTO</th>
                                         <th>CLÍNICA</th>
-                                        <th>ESTADO</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -387,50 +278,41 @@
                                         <td style="font-weight: 700; color: var(--primary);">{{ item.fecha_emo }}</td>
                                         <td style="font-weight: 700; color: #b91c1c;">{{ item.fecha_vencimiento }}</td>
                                         <td style="font-weight: 600;">{{ item.clinica }}</td>
-                                        <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <p style="color: var(--text-muted); font-size: 0.92rem;">
-                            ℹ️ No se encontraron exámenes médicos ocupacionales asociados a su DNI en la base central.
-                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.92rem;">ℹ️ No se encontraron exámenes médicos asignados a su DNI.</p>
                     {% endif %}
                 {% else %}
-                    <p style="color: var(--text-muted); font-size: 0.92rem;">
-                        🔒 Debe <a href="javascript:void(0)" onclick="abrirModal()" style="color: var(--primary); font-weight: 600;">iniciar sesión</a> para visualizar su récord médico personal.
-                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.92rem;">🔒 Inicie sesión para ver sus exámenes médicos.</p>
                 {% endif %}
             </div>
         </div>
 
-        <!-- 3. PESTAÑA: CAPACITACIONES DINÁMICAS DESDE SHAREPOINT -->
+        <!-- TAB 3: CAPACITACIONES REALES (CONECTADO A SHAREPOINT) -->
         <div id="tab-capacitaciones" class="tab-content">
             <div class="info-panel">
                 <div class="panel-header">
-                    <h3>🎓 Récord de Capacitaciones &amp; Autorizaciones</h3>
+                    <h3>🎓 Récord de Capacitaciones &amp; Seguridad</h3>
                     <span style="font-size: 0.8rem; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 12px; font-weight: 600;">
-                        SharePoint Conectado &bull; {{ capacitaciones|length }} curso(s)
+                        SharePoint Conectado &bull; {{ capacitaciones|length }} registro(s)
                     </span>
                 </div>
 
                 {% if session.get('user_dni') %}
                     {% if capacitaciones and capacitaciones|length > 0 %}
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-                            Cursos, inducciones normativas y autorizaciones vigentes registradas en la base central para el DNI <strong>{{ session.get('user_dni') }}</strong>:
-                        </p>
-
                         <div class="table-responsive">
                             <table class="custom-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50px;">#</th>
-                                        <th>CURSO / CAPACITACIÓN REGISTRADA</th>
-                                        <th>FECHA / REGISTRO</th>
-                                        <th>REGISTRO</th>
+                                        <th style="width: 40px;">#</th>
+                                        <th>CURSO / CAPACITACIÓN OBLIGATORIA</th>
+                                        <th>FECHA REGISTRADA</th>
                                         <th>ESTADO</th>
+                                        <th>ORIGEN</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -438,62 +320,53 @@
                                     <tr>
                                         <td style="font-weight: 600; color: var(--text-muted);">{{ loop.index }}</td>
                                         <td style="font-weight: 700; color: var(--primary-dark);">{{ item.curso }}</td>
-                                        <td style="font-weight: 700; color: var(--primary);">{{ item.fecha }}</td>
-                                        <td style="font-size: 0.82rem; color: var(--text-muted);">{{ item.origen }}</td>
-                                        <td><span class="badge-status-tag tag-vigente">Vigente / Aprobado</span></td>
+                                        <td style="font-weight: 600; color: var(--primary);">{{ item.fecha }}</td>
+                                        <td><span class="badge-status-tag {{ item.clase }}">{{ item.estado }}</span></td>
+                                        <td style="font-size: 0.8rem; color: var(--text-muted);">{{ item.origen }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <p style="color: var(--text-muted); font-size: 0.92rem; padding: 1rem 0;">
-                            ℹ️ No se encontraron capacitaciones ni autorizaciones registradas a su nombre en la base central de datos.
-                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.92rem;">ℹ️ No se encontraron registros de capacitaciones para su DNI en la base central.</p>
                     {% endif %}
                 {% else %}
-                    <p style="color: var(--text-muted); font-size: 0.92rem;">
-                        🔒 Debe <a href="javascript:void(0)" onclick="abrirModal()" style="color: var(--primary); font-weight: 600;">iniciar sesión</a> para visualizar su récord de capacitaciones.
-                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.92rem;">🔒 Inicie sesión para ver sus capacitaciones.</p>
                 {% endif %}
             </div>
         </div>
 
-        <!-- 4. PESTAÑA: MIS DOCUMENTOS / PLANTILLA PARA EL FUTURO -->
+        <!-- TAB 4: MIS DOCUMENTOS -->
         <div id="tab-documentos" class="tab-content">
             <div class="info-panel">
                 <div class="panel-header">
                     <h3>📂 Documentos &amp; Solicitudes Operativas</h3>
-                    <span style="font-size: 0.8rem; background: #e2e8f0; color: var(--text-muted); padding: 4px 10px; border-radius: 12px; font-weight: 600;">
-                        Próximamente
-                    </span>
+                    <span style="font-size: 0.8rem; background: #e2e8f0; color: var(--text-muted); padding: 4px 10px; border-radius: 12px; font-weight: 600;">Próximamente</span>
                 </div>
-                <p style="color: var(--text-muted); font-size: 0.92rem;">
-                    Este espacio está preparado para descargar fotochecks, boletas de pago, papeletas de salida y certificados de trabajo.
-                </p>
+                <p style="color: var(--text-muted); font-size: 0.92rem;">Módulo preparado para boletas de pago, fotochecks y certificados de trabajo.</p>
             </div>
         </div>
 
     </main>
 
-    <!-- Modal Login -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-card">
             <button class="modal-close" onclick="cerrarModal()">&times;</button>
-            <div class="modal-header">
-                <div class="logo-badge" style="margin: 0 auto 0.8rem auto;">M&amp;S</div>
-                <h3>Acceso al Sistema</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Usuario: DNI &bull; Clave: PRIMERNOMBRE + DNI</p>
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div class="logo-badge" style="margin: 0 auto 0.6rem auto;">M&amp;S</div>
+                <h3 style="font-family: 'Montserrat', sans-serif; font-size: 1.3rem; color: var(--primary-dark);">Acceso al Sistema</h3>
             </div>
             
             <form action="{{ url_for('login') }}" method="POST">
                 <div class="form-group">
                     <label for="username">DNI / Usuario</label>
-                    <input type="text" id="username" name="username" class="form-control" placeholder="Ej: 72110830" required autofocus>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Ej: 72110726" required autofocus>
                 </div>
                 <div class="form-group">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Ej: JORGE72110830" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required>
                 </div>
                 <button type="submit" class="btn-submit">Ingresar</button>
             </form>
@@ -504,30 +377,17 @@
         <p>&copy; 2026 Mantenimiento y Supervisión S.A. &bull; Todos los derechos reservados</p>
     </footer>
 
-    <!-- LÓGICA DE PESTAÑAS (TABS) Y MODAL -->
     <script>
         function cambiarPestana(evt, tabId) {
-            // Ocultar todos los contenidos
-            var contents = document.querySelectorAll('.tab-content');
-            contents.forEach(function(c) { c.classList.remove('active'); });
-
-            // Desmarcar todos los botones
-            var buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(function(b) { b.classList.remove('active'); });
-
-            // Activar pestaña actual
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
             document.getElementById(tabId).classList.add('active');
-            if (evt) {
-                evt.currentTarget.classList.add('active');
-            }
+            if (evt) { evt.currentTarget.classList.add('active'); }
         }
 
         function activarPestanaPorId(tabId) {
-            var buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(function(b) {
-                if (b.getAttribute('onclick').includes(tabId)) {
-                    b.click();
-                }
+            document.querySelectorAll('.tab-btn').forEach(function(b) {
+                if (b.getAttribute('onclick').includes(tabId)) { b.click(); }
             });
         }
 
