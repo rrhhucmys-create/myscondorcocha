@@ -2,4 +2,6 @@ flask
 gunicorn
 pandas
 pyxlsb
+openpyxl
+requests
 werkzeug
