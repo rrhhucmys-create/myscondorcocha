@@ -135,10 +135,11 @@ def obtener_capacitaciones(dni_usuario):
                         valor = fila.get(curso)
                         valor_str = str(valor).strip().upper() if pd.notna(valor) else ""
 
-                        if valor_str in ["", "-", "NAN", "NONE"]:
+                        # 1. Descartar vacíos o guiones
+                        if valor_str in ["", "-", "NAN", "NONE", "0", "0.0"]:
                             continue
 
-                        # Clasificación de Estado
+                        # 2. Casos donde NO APLICA al puesto
                         if "NA" in valor_str or "N/A" in valor_str:
                             capacitaciones.append({
                                 "curso": curso,
@@ -147,8 +148,23 @@ def obtener_capacitaciones(dni_usuario):
                                 "clase": "tag-noaplica",
                                 "origen": sheet
                             })
+
+                        # 3. Casos donde la fecha dice FALTA
+                        elif "FALTA" in valor_str:
+                            # ---> SI DESEAS MOSTRARLO COMO PENDIENTE (Recomendado):
+                            capacitaciones.append({
+                                "curso": curso,
+                                "fecha": "Falta completar",
+                                "estado": "PENDIENTE",
+                                "clase": "tag-pendiente",
+                                "origen": sheet
+                            })
+
+                            # ---> SI EN CAMBIO PREFIERES NO MOSTRARLO, DESCOMENTA LA SIGUIENTE LÍNEA Y BORRA LO DE ARRIBA:
+                            # continue
+
+                        # 4. Curso aprobado con fecha válida
                         else:
-                            # Es una fecha válida
                             dt = pd.to_datetime(valor, errors="coerce", dayfirst=True)
                             fecha_fmt = dt.strftime("%d/%m/%Y") if pd.notna(dt) else str(valor).split()[0]
                             capacitaciones.append({
