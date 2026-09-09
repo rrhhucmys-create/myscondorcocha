@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M&S - Portal Operativo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>M&amp;S - Portal Operativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #134e5e;
@@ -16,11 +16,14 @@
             --text-dark: #1e293b;
             --text-muted: #64748b;
             --danger: #e63946;
+            --success: #10b981;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
 
+        /* Barra de navegación superior */
         header {
             background: #ffffff;
             border-bottom: 2px solid #e2e8f0;
@@ -66,34 +69,95 @@
         .btn-logout:hover { background-color: #fecaca; }
         .user-tag { font-size: 0.9rem; color: var(--primary-dark); }
 
+        /* Banner Hero */
         .hero {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-            color: #ffffff; padding: 4rem 1.5rem; text-align: center; position: relative;
+            color: #ffffff; padding: 3rem 1.5rem 2.5rem 1.5rem; text-align: center; position: relative;
         }
         .hero::after {
             content: ''; position: absolute; bottom: 0; left: 0; right: 0;
             height: 10px; background: linear-gradient(90deg, var(--accent), #57cc99);
         }
-        .hero h2 { font-family: 'Montserrat', sans-serif; font-size: 2.1rem; font-weight: 800; margin-bottom: 0.8rem; }
-        .hero p { max-width: 680px; margin: 0 auto 1.5rem auto; font-size: 1rem; opacity: 0.92; }
+        .hero h2 { font-family: 'Montserrat', sans-serif; font-size: 1.9rem; font-weight: 800; margin-bottom: 0.5rem; }
 
         .user-welcome-card {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.25);
-            max-width: 600px;
-            margin: 1.5rem auto 0 auto;
-            padding: 1.2rem;
+            max-width: 650px;
+            margin: 0.8rem auto 0 auto;
+            padding: 1.1rem 1.4rem;
             border-radius: 10px;
         }
 
-        .alert-error {
-            max-width: 500px; margin: 1.5rem auto -1rem auto;
-            background-color: #fee2e2; border-left: 4px solid var(--danger);
-            color: #991b1b; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.88rem; text-align: center;
+        /* BARRA DE MENÚ / TABS */
+        .nav-tabs-wrapper {
+            background-color: #ffffff;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 65px;
+            z-index: 90;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
 
-        .container { max-width: 1050px; margin: -2.5rem auto 3rem auto; padding: 0 1rem; }
+        .nav-tabs {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            padding: 0 1rem;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.4rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background-color: #f8fafc;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Contenido de cada sección */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto 4rem auto;
+            padding: 0 1.2rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tarjetas de Módulos (Tab 1) */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.5rem; }
         .card {
             background: var(--card-bg); border-radius: 12px; padding: 2rem 1.7rem;
@@ -111,7 +175,71 @@
         .btn-action {
             display: inline-block; background-color: var(--primary); color: #ffffff;
             text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; border: none;
         }
+
+        /* Estilos de Tablas y Paneles de Información */
+        .info-panel {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.8rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .panel-header h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        table.custom-table th {
+            background-color: #f8fafc;
+            color: var(--primary-dark);
+            font-weight: 700;
+            padding: 12px 14px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        table.custom-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .badge-status-tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .tag-vigente { background-color: #d1fae5; color: #065f46; }
+        .tag-por-vencer { background-color: #fef3c7; color: #92400e; }
+        .tag-vencido { background-color: #fee2e2; color: #991b1b; }
 
         /* Modal */
         .modal-overlay {
@@ -132,12 +260,10 @@
             width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid #cbd5e1;
             border-radius: 6px; font-size: 0.9rem; outline: none;
         }
-        .form-control:focus { border-color: var(--primary); }
         .btn-submit {
             width: 100%; background-color: var(--primary); color: #ffffff; border: none;
             padding: 0.75rem; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 0.5rem;
         }
-        .btn-submit:hover { background-color: var(--primary-dark); }
 
         footer { text-align: center; padding: 2rem 1rem; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid #e2e8f0; background-color: #ffffff; }
     </style>
@@ -165,88 +291,202 @@
     </header>
 
     {% if error %}
-    <div class="alert-error">
+    <div style="max-width: 500px; margin: 1rem auto -0.5rem auto; background: #fee2e2; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; text-align: center; font-size: 0.88rem; border-left: 4px solid var(--danger);">
         ⚠️ {{ error }}
     </div>
     {% endif %}
 
-    <!-- Banner Principal con Vigilancia Médica EMO -->
+    <!-- Banner Principal -->
     <section class="hero">
         {% if session.get('nombre_completo') %}
             <div class="user-welcome-card">
-                <span style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0; font-weight: 700;">Sesión Activa</span>
-                <h2 style="font-size: 1.55rem; margin: 0.4rem 0;">BIENVENIDO, {{ session.get('nombre_completo') }}</h2>
-                <p style="margin: 0 0 1.2rem 0; font-size: 0.9rem; opacity: 0.92;">Cargo: <strong>{{ session.get('cargo') }}</strong> &bull; DNI: {{ session.get('user_dni') }}</p>
+                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0; font-weight: 700;">Sesión Activa</span>
+                <h2 style="font-size: 1.45rem; margin: 0.3rem 0;">BIENVENIDO, {{ session.get('nombre_completo') }}</h2>
+                <p style="margin: 0; font-size: 0.88rem; opacity: 0.92;">Cargo: <strong>{{ session.get('cargo') }}</strong> &bull; DNI: {{ session.get('user_dni') }}</p>
+            </div>
+        {% else %}
+            <h2>Control Operativo &amp; Supervisión</h2>
+            <p style="font-size: 0.95rem; opacity: 0.9;">Plataforma centralizada para la gestión, registro de tareos, control de horas y automatización.</p>
+        {% endif %}
+    </section>
 
-                <!-- Cuadro de Datos EMO desde SharePoint (Soporta múltiples exámenes) -->
-                <div style="background: rgba(255, 255, 255, 0.98); color: var(--text-dark); border-radius: 10px; padding: 1.2rem; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 1rem;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 0.6rem; margin-bottom: 0.8rem;">
-                        <strong style="color: var(--primary); font-size: 0.95rem;">🩺 Registros de Examen Médico Ocupacional (EMO)</strong>
-                        <span style="font-size: 0.75rem; background: #e0f2f1; color: var(--primary); padding: 3px 8px; border-radius: 12px; font-weight: 600;">
-                            {{ emo|length }} registrado(s)
-                        </span>
-                    </div>
+    <!-- BARRA DE MENÚ DE NAVEGACIÓN -->
+    <nav class="nav-tabs-wrapper">
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="cambiarPestana(event, 'tab-inicio')">
+                🏠 Inicio
+            </button>
+            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-emo')">
+                🩺 Vigilancia Médica (EMO)
+            </button>
+            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-capacitaciones')">
+                🎓 Capacitaciones &amp; Cursos
+            </button>
+            <button class="tab-btn" onclick="cambiarPestana(event, 'tab-documentos')">
+                📂 Mis Documentos
+            </button>
+        </div>
+    </nav>
 
+    <!-- CONTENEDOR PRINCIPAL CON PESTAÑAS -->
+    <main class="container">
+
+        <!-- 1. PESTAÑA: INICIO -->
+        <div id="tab-inicio" class="tab-content active">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🩺</div>
+                    <h3>Vigilancia Médica (EMO)</h3>
+                    <p>Consulta tus fechas de evaluación médica ocupacional, estado de vigencia y clínica autorizada.</p>
+                    <button class="btn-action" onclick="activarPestanaPorId('tab-emo')">Ver Mis Exámenes</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🎓</div>
+                    <h3>Mis Capacitaciones</h3>
+                    <p>Revisa tu récord de inducciones de seguridad, cursos normativos y capacitaciones vigentes.</p>
+                    <button class="btn-action" onclick="activarPestanaPorId('tab-capacitaciones')">Ver Capacitaciones</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📋</div>
+                    <h3>Control de Tareos y Asistencia</h3>
+                    <p>Carga y procesamiento automático de marcaciones, turnos diurnos/nocturnos y cálculo de horas.</p>
+                    <a href="#" class="btn-action">Ingresar al Módulo</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. PESTAÑA: VIGILANCIA MÉDICA (EMO) -->
+        <div id="tab-emo" class="tab-content">
+            <div class="info-panel">
+                <div class="panel-header">
+                    <h3>🩺 Registros de Examen Médico Ocupacional (EMO)</h3>
+                    <span style="font-size: 0.8rem; background: #e0f2f1; color: var(--primary); padding: 4px 10px; border-radius: 12px; font-weight: 600;">
+                        SharePoint Conectado
+                    </span>
+                </div>
+
+                {% if session.get('user_dni') %}
                     {% if emo and emo|length > 0 %}
-                        <div style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                        <div class="table-responsive">
+                            <table class="custom-table">
                                 <thead>
-                                    <tr style="background-color: #f1f5f9; color: var(--primary-dark); text-align: left;">
-                                        <th style="padding: 8px 12px; border-radius: 6px 0 0 6px;">#</th>
-                                        <th style="padding: 8px 12px;">FECHA EMO</th>
-                                        <th style="padding: 8px 12px;">FECHA VENCIMIENTO</th>
-                                        <th style="padding: 8px 12px; border-radius: 0 6px 6px 0;">CLÍNICA</th>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>FECHA EMO</th>
+                                        <th>FECHA VENCIMIENTO</th>
+                                        <th>CLÍNICA</th>
+                                        <th>ESTADO</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for item in emo %}
-                                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td style="padding: 10px 12px; font-weight: 600; color: var(--text-muted);">{{ loop.index }}</td>
-                                        <td style="padding: 10px 12px; font-weight: 700; color: var(--primary);">{{ item.fecha_emo }}</td>
-                                        <td style="padding: 10px 12px; font-weight: 700; color: #b91c1c;">{{ item.fecha_vencimiento }}</td>
-                                        <td style="padding: 10px 12px; font-weight: 600; color: var(--text-dark);">{{ item.clinica }}</td>
+                                    <tr>
+                                        <td style="font-weight: 600; color: var(--text-muted);">{{ loop.index }}</td>
+                                        <td style="font-weight: 700; color: var(--primary);">{{ item.fecha_emo }}</td>
+                                        <td style="font-weight: 700; color: #b91c1c;">{{ item.fecha_vencimiento }}</td>
+                                        <td style="font-weight: 600;">{{ item.clinica }}</td>
+                                        <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted);">
-                            ℹ️ No se encontraron registros médicos asignados a su DNI en la base central.
+                        <p style="color: var(--text-muted); font-size: 0.92rem;">
+                            ℹ️ No se encontraron exámenes médicos ocupacionales asociados a su DNI en la base central.
                         </p>
                     {% endif %}
-                </div>
-            </div>
-        {% else %}
-            <h2>Control Operativo &amp; Supervisión</h2>
-            <p>Plataforma centralizada para la gestión, registro de tareos, control de horas y automatización de procesos operativos.</p>
-        {% endif %}
-    </section>
-
-    <!-- Módulos Principales -->
-    <main class="container">
-        <div class="cards-grid">
-            <div class="card">
-                <div class="card-icon">📋</div>
-                <h3>Control de Tareos y Asistencia</h3>
-                <p>Carga y procesamiento automático de marcaciones, turnos diurnos/nocturnos y cálculo de horas compensadas.</p>
-                <a href="#" class="btn-action">Ingresar al Módulo</a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">📊</div>
-                <h3>Supervisión &amp; Reportes</h3>
-                <p>Consolidación de órdenes de trabajo (OT), métricas operativas y generación de reportes consolidados en Excel.</p>
-                <a href="#" class="btn-action">Ver Reportes</a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">⚙️</div>
-                <h3>Automatización y Datos</h3>
-                <p>Herramientas y scripts auxiliares en Python para validación, cruce de información y tareas administrativas.</p>
-                <a href="#" class="btn-action">Herramientas</a>
+                {% else %}
+                    <p style="color: var(--text-muted); font-size: 0.92rem;">
+                        🔒 Debe <a href="javascript:void(0)" onclick="abrirModal()" style="color: var(--primary); font-weight: 600;">iniciar sesión</a> para visualizar su récord médico personal.
+                    </p>
+                {% endif %}
             </div>
         </div>
+
+        <!-- 3. PESTAÑA: CAPACITACIONES (NUEVA) -->
+        <div id="tab-capacitaciones" class="tab-content">
+            <div class="info-panel">
+                <div class="panel-header">
+                    <h3>🎓 Récord de Capacitaciones &amp; Seguridad</h3>
+                    <span style="font-size: 0.8rem; background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 12px; font-weight: 600;">
+                        Módulo de Seguridad (SSOMA)
+                    </span>
+                </div>
+
+                {% if session.get('user_dni') %}
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                        A continuación se detallan las inducciones generales, cursos de seguridad y capacitaciones operativas registradas a su nombre:
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>CURSO / CAPACITACIÓN</th>
+                                    <th>TIPO</th>
+                                    <th>FECHA DE REALIZACIÓN</th>
+                                    <th>VIGENCIA</th>
+                                    <th>ESTADO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight: 600;">Inducción General de Seguridad y Medio Ambiente (Anexo 4)</td>
+                                    <td>Normativo / SSOMA</td>
+                                    <td>15/01/2026</td>
+                                    <td>15/01/2027</td>
+                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">IPERC Continuo y Gestión de Riesgos Críticos</td>
+                                    <td>Seguridad Operativa</td>
+                                    <td>20/01/2026</td>
+                                    <td>20/01/2027</td>
+                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">Trabajos en Altura y Protección Contra Caídas</td>
+                                    <td>Alto Riesgo (PETAR)</td>
+                                    <td>05/02/2026</td>
+                                    <td>05/02/2027</td>
+                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">Bloqueo y Etiquetado de Energía (LOTO)</td>
+                                    <td>Mantenimiento Mecánico</td>
+                                    <td>10/02/2026</td>
+                                    <td>10/02/2027</td>
+                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p style="color: var(--text-muted); font-size: 0.92rem;">
+                        🔒 Debe <a href="javascript:void(0)" onclick="abrirModal()" style="color: var(--primary); font-weight: 600;">iniciar sesión</a> para visualizar sus capacitaciones.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 4. PESTAÑA: MIS DOCUMENTOS / PLANTILLA PARA EL FUTURO -->
+        <div id="tab-documentos" class="tab-content">
+            <div class="info-panel">
+                <div class="panel-header">
+                    <h3>📂 Documentos &amp; Solicitudes Operativas</h3>
+                    <span style="font-size: 0.8rem; background: #e2e8f0; color: var(--text-muted); padding: 4px 10px; border-radius: 12px; font-weight: 600;">
+                        Próximamente
+                    </span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.92rem;">
+                    Este espacio está preparado para descargar fotochecks, boletas de pago, papeletas de salida y certificados de trabajo.
+                </p>
+            </div>
+        </div>
+
     </main>
 
     <!-- Modal Login -->
@@ -256,7 +496,7 @@
             <div class="modal-header">
                 <div class="logo-badge" style="margin: 0 auto 0.8rem auto;">M&amp;S</div>
                 <h3>Acceso al Sistema</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Ingrese su DNI como usuario</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Usuario: DNI &bull; Clave: PRIMERNOMBRE + DNI</p>
             </div>
             
             <form action="{{ url_for('login') }}" method="POST">
@@ -277,7 +517,33 @@
         <p>&copy; 2026 Mantenimiento y Supervisión S.A. &bull; Todos los derechos reservados</p>
     </footer>
 
+    <!-- LÓGICA DE PESTAÑAS (TABS) Y MODAL -->
     <script>
+        function cambiarPestana(evt, tabId) {
+            // Ocultar todos los contenidos
+            var contents = document.querySelectorAll('.tab-content');
+            contents.forEach(function(c) { c.classList.remove('active'); });
+
+            // Desmarcar todos los botones
+            var buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(function(b) { b.classList.remove('active'); });
+
+            // Activar pestaña actual
+            document.getElementById(tabId).classList.add('active');
+            if (evt) {
+                evt.currentTarget.classList.add('active');
+            }
+        }
+
+        function activarPestanaPorId(tabId) {
+            var buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(function(b) {
+                if (b.getAttribute('onclick').includes(tabId)) {
+                    b.click();
+                }
+            });
+        }
+
         function abrirModal() { document.getElementById('loginModal').style.display = 'flex'; }
         function cerrarModal() { document.getElementById('loginModal').style.display = 'none'; }
         window.onclick = function(event) {
