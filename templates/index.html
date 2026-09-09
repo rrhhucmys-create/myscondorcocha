@@ -406,67 +406,54 @@
             </div>
         </div>
 
-        <!-- 3. PESTAÑA: CAPACITACIONES (NUEVA) -->
+        <!-- 3. PESTAÑA: CAPACITACIONES DINÁMICAS DESDE SHAREPOINT -->
         <div id="tab-capacitaciones" class="tab-content">
             <div class="info-panel">
                 <div class="panel-header">
-                    <h3>🎓 Récord de Capacitaciones &amp; Seguridad</h3>
-                    <span style="font-size: 0.8rem; background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 12px; font-weight: 600;">
-                        Módulo de Seguridad (SSOMA)
+                    <h3>🎓 Récord de Capacitaciones &amp; Autorizaciones</h3>
+                    <span style="font-size: 0.8rem; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 12px; font-weight: 600;">
+                        SharePoint Conectado &bull; {{ capacitaciones|length }} curso(s)
                     </span>
                 </div>
 
                 {% if session.get('user_dni') %}
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-                        A continuación se detallan las inducciones generales, cursos de seguridad y capacitaciones operativas registradas a su nombre:
-                    </p>
+                    {% if capacitaciones and capacitaciones|length > 0 %}
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                            Cursos, inducciones normativas y autorizaciones vigentes registradas en la base central para el DNI <strong>{{ session.get('user_dni') }}</strong>:
+                        </p>
 
-                    <div class="table-responsive">
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>CURSO / CAPACITACIÓN</th>
-                                    <th>TIPO</th>
-                                    <th>FECHA DE REALIZACIÓN</th>
-                                    <th>VIGENCIA</th>
-                                    <th>ESTADO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="font-weight: 600;">Inducción General de Seguridad y Medio Ambiente (Anexo 4)</td>
-                                    <td>Normativo / SSOMA</td>
-                                    <td>15/01/2026</td>
-                                    <td>15/01/2027</td>
-                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 600;">IPERC Continuo y Gestión de Riesgos Críticos</td>
-                                    <td>Seguridad Operativa</td>
-                                    <td>20/01/2026</td>
-                                    <td>20/01/2027</td>
-                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 600;">Trabajos en Altura y Protección Contra Caídas</td>
-                                    <td>Alto Riesgo (PETAR)</td>
-                                    <td>05/02/2026</td>
-                                    <td>05/02/2027</td>
-                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 600;">Bloqueo y Etiquetado de Energía (LOTO)</td>
-                                    <td>Mantenimiento Mecánico</td>
-                                    <td>10/02/2026</td>
-                                    <td>10/02/2027</td>
-                                    <td><span class="badge-status-tag tag-vigente">Vigente</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">#</th>
+                                        <th>CURSO / CAPACITACIÓN REGISTRADA</th>
+                                        <th>FECHA / REGISTRO</th>
+                                        <th>REGISTRO</th>
+                                        <th>ESTADO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in capacitaciones %}
+                                    <tr>
+                                        <td style="font-weight: 600; color: var(--text-muted);">{{ loop.index }}</td>
+                                        <td style="font-weight: 700; color: var(--primary-dark);">{{ item.curso }}</td>
+                                        <td style="font-weight: 700; color: var(--primary);">{{ item.fecha }}</td>
+                                        <td style="font-size: 0.82rem; color: var(--text-muted);">{{ item.origen }}</td>
+                                        <td><span class="badge-status-tag tag-vigente">Vigente / Aprobado</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p style="color: var(--text-muted); font-size: 0.92rem; padding: 1rem 0;">
+                            ℹ️ No se encontraron capacitaciones ni autorizaciones registradas a su nombre en la base central de datos.
+                        </p>
+                    {% endif %}
                 {% else %}
                     <p style="color: var(--text-muted); font-size: 0.92rem;">
-                        🔒 Debe <a href="javascript:void(0)" onclick="abrirModal()" style="color: var(--primary); font-weight: 600;">iniciar sesión</a> para visualizar sus capacitaciones.
+                        🔒 Debe <a href="javascript:void(0)" onclick="abrirModal()" style="color: var(--primary); font-weight: 600;">iniciar sesión</a> para visualizar su récord de capacitaciones.
                     </p>
                 {% endif %}
             </div>
