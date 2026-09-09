@@ -170,14 +170,42 @@
     </div>
     {% endif %}
 
-    <!-- Banner Principal -->
+    <!-- Banner Principal con Vigilancia Médica EMO -->
     <section class="hero">
         {% if session.get('nombre_completo') %}
-            <!-- Tarjeta de Bienvenida Personalizada -->
             <div class="user-welcome-card">
-                <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0; font-weight: 700;">Sesión Activa</span>
-                <h2 style="font-size: 1.6rem; margin: 0.4rem 0;">BIENVENIDO, {{ session.get('nombre_completo') }}</h2>
-                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Cargo: <strong>{{ session.get('cargo') }}</strong> &bull; DNI: {{ session.get('user_dni') }}</p>
+                <span style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0; font-weight: 700;">Sesión Activa</span>
+                <h2 style="font-size: 1.55rem; margin: 0.4rem 0;">BIENVENIDO, {{ session.get('nombre_completo') }}</h2>
+                <p style="margin: 0 0 1.2rem 0; font-size: 0.9rem; opacity: 0.92;">Cargo: <strong>{{ session.get('cargo') }}</strong> &bull; DNI: {{ session.get('user_dni') }}</p>
+
+                <!-- Cuadro de Datos EMO desde SharePoint -->
+                <div style="background: rgba(255, 255, 255, 0.95); color: var(--text-dark); border-radius: 8px; padding: 1.2rem; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 0.6rem; margin-bottom: 0.8rem;">
+                        <strong style="color: var(--primary); font-size: 0.95rem;">🩺 Estado de Examen Médico (EMO)</strong>
+                        <span style="font-size: 0.75rem; background: #e0f2f1; color: var(--primary); padding: 3px 8px; border-radius: 12px; font-weight: 600;">SharePoint Conectado</span>
+                    </div>
+
+                    {% if emo %}
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+                            <div>
+                                <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">FECHA EMO</span>
+                                <strong style="font-size: 1rem; color: var(--primary-dark);">{{ emo.fecha_emo }}</strong>
+                            </div>
+                            <div>
+                                <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">FECHA DE VENCIMIENTO</span>
+                                <strong style="font-size: 1rem; color: #b91c1c;">{{ emo.fecha_vencimiento }}</strong>
+                            </div>
+                            <div>
+                                <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">CLÍNICA</span>
+                                <strong style="font-size: 1rem; color: var(--primary-dark);">{{ emo.clinica }}</strong>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted);">
+                            ℹ️ No se encontraron registros médicos vigentes asignados a su DNI en la base central.
+                        </p>
+                    {% endif %}
+                </div>
             </div>
         {% else %}
             <h2>Control Operativo &amp; Supervisión</h2>
